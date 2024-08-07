@@ -5,6 +5,7 @@ import 'departure_setup_open.dart'; // Import the PrinterService
 import 'receipt_service.dart'; // Import the ReceiptService
 import 'routes.dart';
 import 'database_helper.dart'; // Import the DatabaseHelper
+import 'or_number_service.dart'; // Import the ORNumberService
 
 void main() {
   runApp(const MyApp());
@@ -294,6 +295,7 @@ class _DepartureSetupPageState extends State<DepartureSetupPage> {
   String selectedRoute = '';
   final TextEditingController departureTimeController = TextEditingController();
   final TextEditingController licensePlateController = TextEditingController();
+  String orNumber = '';
 
   @override
   void initState() {
@@ -304,6 +306,7 @@ class _DepartureSetupPageState extends State<DepartureSetupPage> {
     departureTimeController.text = '$formattedDate | $formattedTime';
     licensePlateController.text = widget.licensePlate;
     selectedRoute = widget.routes.isNotEmpty ? widget.routes.first : ''; // Initialize with the first route
+    _generateOrNumber(); // Generate OR number on initialization
   }
 
   @override
@@ -311,6 +314,19 @@ class _DepartureSetupPageState extends State<DepartureSetupPage> {
     departureTimeController.dispose();
     licensePlateController.dispose();
     super.dispose();
+  }
+
+  Future<void> _generateOrNumber() async {
+    try {
+      final nextOrNumber = await ORNumberService.getNextORNumber();
+      setState(() {
+        orNumber = nextOrNumber;
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error generating OR number: $e')),
+      );
+    }
   }
 
   void _printReceipt() async {
@@ -333,7 +349,7 @@ class _DepartureSetupPageState extends State<DepartureSetupPage> {
         departureTime: departureTime,
         busNumber: 'BUS 018',
         licensePlate: licensePlateController.text,
-        openingOr: '026376',
+        openingOr: orNumber,
         openingSaleDateTime: DateFormat('MM/dd/yyyy HH:mm:ss').format(DateTime.now()),
       );
 
@@ -342,7 +358,7 @@ class _DepartureSetupPageState extends State<DepartureSetupPage> {
           'Departure Time: $departureTime\n'
           'Bus Number: BUS 018\n'
           'License Plate: ${licensePlateController.text}\n'
-          'Opening OR: 026376\n'
+          'Opening OR: $orNumber\n'
           'Opening Sale DateTime: ${DateFormat('MM/dd/yyyy HH:mm:ss').format(DateTime.now())}';
       final fileName = 'receipt_${DateTime.now().millisecondsSinceEpoch}.txt';
       await ReceiptService.saveReceipt(receiptContent, fileName);
@@ -409,7 +425,6 @@ class _DepartureSetupPageState extends State<DepartureSetupPage> {
               ),
               readOnly: true,
             ),
-            const SizedBox(height: 16),
             ElevatedButton(
               onPressed: _printReceipt,
               child: const Text('Print Receipt'),
@@ -420,6 +435,7 @@ class _DepartureSetupPageState extends State<DepartureSetupPage> {
     );
   }
 }
+
 
 class SettingsPage extends StatefulWidget {
   static const String routeName = '/settings'; // Define route name

@@ -69,6 +69,7 @@ Future<void> _printClosingReceipt(
 
     await file.writeAsString(
       '''
+-------------------------------------------
 DEPARTURE SUCCESSFULLY CLOSED\n\n
 Line: $selectedRoute\n
 Departure Date: $departureDate\n
@@ -76,7 +77,9 @@ Departure Time: $departureTime\n
 Bus Number: BUS 018\n
 License Plate: ${licensePlateController.text}\n
 Closing OR: 026376\n
-Closing Sale DateTime: ${DateFormat('MM/dd/yyyy HH:mm:ss').format(DateTime.now())}
+Closing Sale DateTime: 
+${DateFormat('MM/dd/yyyy HH:mm:ss').format(DateTime.now())}
+--------------------------------------------
       ''',
     );
 
