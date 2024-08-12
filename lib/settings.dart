@@ -5,7 +5,9 @@ class SettingsPage extends StatefulWidget {
   static const String routeName = '/settings'; // Define route name
 
   final String initialLicensePlate;
+  final String initialBusNumber; // Add initialBusNumber
   final ValueChanged<String> onLicensePlateChanged;
+  final ValueChanged<String> onBusNumberChanged; // Add onBusNumberChanged
   final List<String> initialRoutes;
   final ValueChanged<List<String>> onRoutesChanged;
 
@@ -13,6 +15,8 @@ class SettingsPage extends StatefulWidget {
     super.key,
     required this.initialLicensePlate,
     required this.onLicensePlateChanged,
+    required this.initialBusNumber, // Add this line
+    required this.onBusNumberChanged, // Add this line
     required this.initialRoutes,
     required this.onRoutesChanged,
   });
@@ -23,6 +27,7 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   final TextEditingController licensePlateController = TextEditingController();
+  final TextEditingController busNumberController = TextEditingController(); // Add Bus Number controller
   final TextEditingController routeController = TextEditingController();
   List<String> routes = [];
 
@@ -30,6 +35,7 @@ class _SettingsPageState extends State<SettingsPage> {
   void initState() {
     super.initState();
     licensePlateController.text = widget.initialLicensePlate;
+    busNumberController.text = widget.initialBusNumber; // Initialize Bus Number
     routes = List.from(widget.initialRoutes); // Ensure the list is a copy
   }
 
@@ -48,9 +54,11 @@ class _SettingsPageState extends State<SettingsPage> {
 
     // Debug statements to check values
     print('Saving license plate: ${licensePlateController.text}');
+    print('Saving bus number: ${busNumberController.text}'); // Debug for Bus Number
 
-    // Save the license plate
+    // Save the license plate and bus number
     await dbHelper.insertLicensePlate(licensePlateController.text);
+    await dbHelper.insertBusNumber(busNumberController.text); // Save the Bus Number
 
     // Clear existing routes and save new routes
     await dbHelper.clearRoutes(); // Ensure old routes are removed
@@ -60,17 +68,19 @@ class _SettingsPageState extends State<SettingsPage> {
 
     // Update the settings
     widget.onLicensePlateChanged(licensePlateController.text);
+    widget.onBusNumberChanged(busNumberController.text); // Update Bus Number
     widget.onRoutesChanged(routes);
 
     // Debug statement to confirm settings are saved
     print('Settings saved with license plate: ${licensePlateController.text}');
+    print('Settings saved with bus number: ${busNumberController.text}'); // Debug for Bus Number
 
     Navigator.pop(context, {
       'licensePlate': licensePlateController.text,
+      'busNumber': busNumberController.text, // Add Bus Number to pop result
       'routes': routes,
     });
   }
-
 
   void _deleteRoute(int index) async {
     final route = routes[index];
@@ -85,6 +95,7 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   void dispose() {
     licensePlateController.dispose();
+    busNumberController.dispose(); // Dispose Bus Number controller
     routeController.dispose();
     super.dispose();
   }
@@ -104,6 +115,14 @@ class _SettingsPageState extends State<SettingsPage> {
               controller: licensePlateController,
               decoration: const InputDecoration(
                 labelText: 'License Plate',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: busNumberController,
+              decoration: const InputDecoration(
+                labelText: 'Bus Number',
                 border: OutlineInputBorder(),
               ),
             ),

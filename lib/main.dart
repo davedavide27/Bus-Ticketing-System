@@ -20,6 +20,7 @@ class _MyAppState extends State<MyApp> {
   bool departureStarted = false;
   bool departureClosed = false;
   String licensePlate = '';
+  String busNumber = ''; // Add busNumber variable
   List<String> routes = [];
 
   @override
@@ -35,10 +36,12 @@ class _MyAppState extends State<MyApp> {
     await _insertInitialRoutes(dbHelper);
 
     final plate = await dbHelper.getLicensePlate();
+    final busNo = await dbHelper.getBusNumber(); // Get the bus number from the database
     final routeList = await dbHelper.getRoutes();
 
     setState(() {
       licensePlate = plate ?? '';
+      busNumber = busNo ?? ''; // Set the bus number
       routes = routeList;
     });
   }
@@ -93,6 +96,14 @@ class _MyAppState extends State<MyApp> {
       licensePlate = newLicensePlate;
       final dbHelper = DatabaseHelper();
       dbHelper.insertLicensePlate(newLicensePlate);
+    });
+  }
+
+  void _updateBusNumber(String newBusNumber) {
+    setState(() {
+      busNumber = newBusNumber;
+      final dbHelper = DatabaseHelper();
+      dbHelper.insertBusNumber(newBusNumber);
     });
   }
 
@@ -153,6 +164,8 @@ class _MyAppState extends State<MyApp> {
         SettingsPage.routeName: (context) => SettingsPage(
           initialLicensePlate: licensePlate,
           onLicensePlateChanged: _updateLicensePlate,
+          initialBusNumber: busNumber, // Pass the initial bus number
+          onBusNumberChanged: _updateBusNumber, // Pass the bus number update callback
           initialRoutes: routes,
           onRoutesChanged: _updateRoutes,
         ),

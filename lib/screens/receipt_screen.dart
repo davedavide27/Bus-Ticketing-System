@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:senraise_printer/senraise_printer.dart';
+import 'package:intl/intl.dart'; // Import the intl package for date formatting
 
 class ReceiptScreen extends StatelessWidget {
   final String startingStop;
@@ -18,7 +19,12 @@ class ReceiptScreen extends StatelessWidget {
   Future<void> printReceipt(BuildContext context) async {
     final _senraisePrinterPlugin = SenraisePrinter();
 
-    // Construct the receipt content
+    // Get current date and time
+    final currentDateTime = DateTime.now();
+    final formattedDate = DateFormat('yyyy-MM-dd').format(currentDateTime);
+    final formattedTime = DateFormat('hh:mm a').format(currentDateTime); // AM/PM format
+
+    // Construct the receipt content with date and time
     String receiptContent = '''
     
     
@@ -29,6 +35,10 @@ Starting Stop: $startingStop
 Destination Stop: $destinationStop
 Fare Type: ${isDiscounted ? 'Discounted' : 'Regular'}
 Total Fare: ₱${fare.toStringAsFixed(2)}
+
+------------------------------
+Date and Time Issued:
+$formattedDate | $formattedTime
 ------------------------------
 
 

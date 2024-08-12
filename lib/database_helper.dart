@@ -29,9 +29,15 @@ class DatabaseHelper {
   // Create tables when the database is first created
   void _onCreate(Database db, int version) async {
     await db.execute('''
-      CREATE TABLE settings (
+      CREATE TABLE license_plate (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        license_plate TEXT
+        plate_number TEXT UNIQUE
+      )
+    ''');
+    await db.execute('''
+      CREATE TABLE bus_number (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        bus_number TEXT UNIQUE
       )
     ''');
     await db.execute('''
@@ -45,19 +51,69 @@ class DatabaseHelper {
   // Insert or update the license plate
   Future<void> insertLicensePlate(String licensePlate) async {
     final db = await database;
-    await db.insert(
-      'settings',
-      {'license_plate': licensePlate},
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+
+    // Check if the license plate already exists
+    final existingPlate = await getLicensePlate();
+
+    // If the plate has changed or does not exist, update it
+    if (existingPlate != licensePlate) {
+      // Delete the existing plate
+      await db.delete(
+        'license_plate',
+        where: 'plate_number = ?',
+        whereArgs: [existingPlate],
+      );
+
+      // Insert the new plate
+      await db.insert(
+        'license_plate',
+        {'plate_number': licensePlate},
+        conflictAlgorithm: ConflictAlgorithm.ignore,
+      );
+    }
   }
 
   // Retrieve the license plate
   Future<String?> getLicensePlate() async {
     final db = await database;
-    final result = await db.query('settings', limit: 1);
+    final result = await db.query('license_plate', limit: 1);
     if (result.isNotEmpty) {
-      return result.first['license_plate'] as String?;
+      return result.first['plate_number'] as String?;
+    }
+    return null;
+  }
+
+  // Insert or update the bus number
+  Future<void> insertBusNumber(String busNumber) async {
+    final db = await database;
+
+    // Check if the bus number already exists
+    final existingBusNumber = await getBusNumber();
+
+    // If the bus number has changed or does not exist, update it
+    if (existingBusNumber != busNumber) {
+      // Delete the existing bus number
+      await db.delete(
+        'bus_number',
+        where: 'bus_number = ?',
+        whereArgs: [existingBusNumber],
+      );
+
+      // Insert the new bus number
+      await db.insert(
+        'bus_number',
+        {'bus_number': busNumber},
+        conflictAlgorithm: ConflictAlgorithm.ignore,
+      );
+    }
+  }
+
+  // Retrieve the bus number
+  Future<String?> getBusNumber() async {
+    final db = await database;
+    final result = await db.query('bus_number', limit: 1);
+    if (result.isNotEmpty) {
+      return result.first['bus_number'] as String?;
     }
     return null;
   }
