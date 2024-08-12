@@ -72,6 +72,26 @@ class DatabaseHelper {
     );
   }
 
+  // Insert multiple routes into the database
+  Future<void> insertMultipleRoutes(List<String> routeNames) async {
+    final db = await database;
+
+    // Start a batch
+    final batch = db.batch();
+
+    // Add each route to the batch
+    for (var route in routeNames) {
+      batch.insert(
+        'routes',
+        {'route_name': route},
+        conflictAlgorithm: ConflictAlgorithm.ignore, // Avoid duplicates
+      );
+    }
+
+    // Execute the batch
+    await batch.commit();
+  }
+
   // Retrieve all routes from the database
   Future<List<String>> getRoutes() async {
     final db = await database;
