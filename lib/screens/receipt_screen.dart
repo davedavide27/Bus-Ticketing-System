@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:senraise_printer/senraise_printer.dart';
 
 class ReceiptScreen extends StatelessWidget {
   final String startingStop;
@@ -13,6 +14,46 @@ class ReceiptScreen extends StatelessWidget {
     required this.fare,
     this.isDiscounted = false,
   }) : super(key: key);
+
+  Future<void> printReceipt(BuildContext context) async {
+    final _senraisePrinterPlugin = SenraisePrinter();
+
+    // Construct the receipt content
+    String receiptContent = '''
+    
+    
+------------------------------
+BUS FARE RECEIPT
+------------------------------
+Starting Stop: $startingStop
+Destination Stop: $destinationStop
+Fare Type: ${isDiscounted ? 'Discounted' : 'Regular'}
+Total Fare: ₱${fare.toStringAsFixed(2)}
+------------------------------
+
+
+
+    ''';
+
+    try {
+      await _senraisePrinterPlugin.setTextBold(true);
+      await _senraisePrinterPlugin.setTextSize(24); // Adjust text size as needed
+      await _senraisePrinterPlugin.printText(receiptContent);
+
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Receipt printed successfully')),
+      );
+
+      // Exit the screen after printing
+      Navigator.of(context).pop();
+    } catch (e) {
+      // Show error message if printing fails
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to print receipt: $e')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,13 +89,11 @@ class ReceiptScreen extends StatelessWidget {
             const Spacer(),
             Center(
               child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context); // Close the receipt screen
-                },
+                onPressed: () => printReceipt(context),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.orange,
                 ),
-                child: const Text('Close'),
+                child: const Text('Print Receipt'),
               ),
             ),
           ],

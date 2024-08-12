@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'receipt_screen.dart'; // Adjust the path based on your project structure
 
-
 class BusTicketScreen extends StatefulWidget {
   final String startingStop;
   final bool reverseOrder; // Add the reverseOrder parameter
@@ -166,7 +165,7 @@ class _BusTicketScreenState extends State<BusTicketScreen> {
       context,
       MaterialPageRoute(
         builder: (context) => ReceiptScreen(
-          startingStop: selectedStop!,
+          startingStop: widget.startingStop,
           destinationStop: selectedCard!,
           fare: isDiscounted ? discountedFare : regularFare,
           isDiscounted: isDiscounted,
