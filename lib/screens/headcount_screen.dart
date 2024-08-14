@@ -32,12 +32,19 @@ class _HeadcountScreenState extends State<HeadcountScreen> {
             ElevatedButton(
               onPressed: () {
                 int headcount = int.tryParse(_headcountController.text) ?? 0;
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ReportingTicketScreen(headcount: headcount),
-                  ),
-                );
+                if (headcount > 0) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ReportingTicketScreen(headcount: headcount),
+                    ),
+                  );
+                } else {
+                  // Show an error message if headcount is not valid
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Please enter a valid headcount.')),
+                  );
+                }
               },
               child: const Text('Generate Report'),
             ),
@@ -45,5 +52,11 @@ class _HeadcountScreenState extends State<HeadcountScreen> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _headcountController.dispose();
+    super.dispose();
   }
 }

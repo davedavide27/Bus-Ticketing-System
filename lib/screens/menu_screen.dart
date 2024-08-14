@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'headcount_screen.dart';     // Import the HeadcountScreen
 import 'select_stop_screen.dart';   // Import the SelectStopScreen
-import '../settings.dart';      // Import the SettingsPage
+import '../settings.dart';          // Import the SettingsPage
+import 'tickets_today.dart';        // Import the TicketsTodayScreen
+import '../departure_close_receipt.dart'; // Import the PrinterService class
+import '../database_helper.dart'; // Import DatabaseHelper
 
 class MenuScreen extends StatefulWidget {
   final void Function() onDepartureStart;
@@ -30,6 +33,50 @@ class MenuScreen extends StatefulWidget {
 }
 
 class _MenuScreenState extends State<MenuScreen> {
+  bool _isDepartureOpen = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkOpenDeparture();
+  }
+
+  Future<void> _checkOpenDeparture() async {
+    final dbHelper = DatabaseHelper();
+    final openDeparture = await dbHelper.getOpenDeparture();
+    setState(() {
+      _isDepartureOpen = openDeparture != null;
+    });
+  }
+
+  Future<void> _handleCloseDeparture() async {
+    if (_isDepartureOpen) {
+      await PrinterService.printDepartureCloseReceipt(
+        context: context,
+        line: '134 / Bancasi-Dumagalan to Ampayon Rotunda', // Example data
+        departureDate: '2024-08-14', // Example data
+        departureTime: '09:00 AM', // Example data
+        busNumber: '1234', // Example data
+        licensePlate: widget.licensePlate,
+        openingOr: 'OR123456', // Example data
+        openingSaleDateTime: DateTime.now().toString(),
+      );
+
+      // Close the departure
+      await DatabaseHelper().closeDeparture();
+
+      // Notify the parent widget
+      widget.onDepartureClose();
+      setState(() {
+        _isDepartureOpen = false;
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No open departure to close.')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -65,75 +112,93 @@ class _MenuScreenState extends State<MenuScreen> {
           ),
         ],
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const SelectStopScreen()),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-              ),
-              child: const Padding(
-                padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
-                child: Text('BUS TICKET'),
-              ),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const HeadcountScreen()),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-              ),
-              child: const Padding(
-                padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
-                child: Text('REPORTING TICKET'),
-              ),
-            ),
-            const SizedBox(height: 20),
-            if (widget.departureStarted && !widget.departureClosed)
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
               ElevatedButton(
-                onPressed: widget.onDepartureClose,
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const SelectStopScreen()),
+                  );
+                },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
+                  backgroundColor: Colors.orange,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
                   ),
-                ),
-                child: const Padding(
                   padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
-                  child: Text('CLOSE DEPARTURE'),
                 ),
+                child: const Text('BUS TICKET'),
               ),
-            if (widget.departureClosed)
-              const Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Text(
-                  'Departure has been closed.',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.red,
+              SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const HeadcountScreen()),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
+                ),
+                child: const Text('REPORTING TICKET'),
+              ),
+              SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => TicketsTodayScreen()),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
+                ),
+                child: const Text('VIEW TICKETS TODAY'),
+              ),
+              SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: widget.departureStarted && !widget.departureClosed
+                    ? _handleCloseDeparture
+                    : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: widget.departureStarted && !widget.departureClosed
+                      ? Colors.red
+                      : Colors.black, // Black when disabled
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
+                ),
+                child: const Text('CLOSE DEPARTURE'),
+              ),
+              SizedBox(height: 16),
+              if (widget.departureClosed)
+                const Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Text(
+                    'Departure has been closed.',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.red,
+                    ),
                   ),
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
     );

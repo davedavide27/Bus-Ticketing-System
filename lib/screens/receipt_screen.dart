@@ -1,12 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:senraise_printer/senraise_printer.dart';
 import 'package:intl/intl.dart'; // Import the intl package for date formatting
+import 'package:shared_preferences/shared_preferences.dart';
+
+class ORNumberService {
+  static const String _orNumberKey = 'bus_or_number';
+
+  // Get the next OR number and increment it
+  static Future<String> getNextORNumber() async {
+    final prefs = await SharedPreferences.getInstance();
+    int busOrNumber = prefs.getInt(_orNumberKey) ?? 189536; // Default value if not set
+    String formattedOrNumber = busOrNumber.toString().padLeft(6, '0'); // Format to a 6-digit string
+    await prefs.setInt(_orNumberKey, busOrNumber + 1);
+    return formattedOrNumber;
+  }
+}
+
 
 class ReceiptScreen extends StatelessWidget {
   final String startingStop;
   final String destinationStop;
   final double fare;
   final bool isDiscounted;
+  final String busOrNumber; // Add this parameter
 
   const ReceiptScreen({
     Key? key,
@@ -14,6 +30,7 @@ class ReceiptScreen extends StatelessWidget {
     required this.destinationStop,
     required this.fare,
     this.isDiscounted = false,
+    required this.busOrNumber, // Include this parameter in the constructor
   }) : super(key: key);
 
   Future<void> printReceipt(BuildContext context) async {
@@ -24,9 +41,8 @@ class ReceiptScreen extends StatelessWidget {
     final formattedDate = DateFormat('yyyy-MM-dd').format(currentDateTime);
     final formattedTime = DateFormat('hh:mm a').format(currentDateTime); // AM/PM format
 
-    // Construct the receipt content with date and time
+    // Construct the receipt content with date, time, and OR number
     String receiptContent = '''
-    
     
 ------------------------------
 BUS FARE RECEIPT
@@ -35,12 +51,11 @@ Starting Stop: $startingStop
 Destination Stop: $destinationStop
 Fare Type: ${isDiscounted ? 'Discounted' : 'Regular'}
 Total Fare: ₱${fare.toStringAsFixed(2)}
-
+Bus Ticket OR: $busOrNumber
 ------------------------------
 Date and Time Issued:
 $formattedDate | $formattedTime
 ------------------------------
-
 
 
     ''';
@@ -77,6 +92,11 @@ $formattedDate | $formattedTime
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Text(
+              'Bus OR Number: $busOrNumber',
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
             Text(
               'Starting Stop: $startingStop',
               style: const TextStyle(fontSize: 18),

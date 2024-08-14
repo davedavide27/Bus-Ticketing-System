@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'receipt_screen.dart'; // Adjust the path based on your project structure
+import '../database_helper.dart'; // Import your database helper class
 
 class BusTicketScreen extends StatefulWidget {
   final String startingStop;
@@ -16,6 +17,7 @@ class BusTicketScreen extends StatefulWidget {
 }
 
 class _BusTicketScreenState extends State<BusTicketScreen> {
+  final databaseHelper = DatabaseHelper(); // Declare databaseHelper here
   late List<String> allStops;
   late List<String> availableStops;
   String? selectedStop;
@@ -160,7 +162,14 @@ class _BusTicketScreenState extends State<BusTicketScreen> {
     }
   }
 
-  void _showReceipt(bool isDiscounted) {
+  void _showReceipt(bool isDiscounted) async {
+    // Fetch the OR number
+    final busOrNumber = await ORNumberService.getNextORNumber();
+
+    // Save ticket details to the database
+    await _insertTicket(isDiscounted, busOrNumber);
+
+    // Navigate to the ReceiptScreen with the fetched OR number
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -169,8 +178,22 @@ class _BusTicketScreenState extends State<BusTicketScreen> {
           destinationStop: selectedCard!,
           fare: isDiscounted ? discountedFare : regularFare,
           isDiscounted: isDiscounted,
+          busOrNumber: busOrNumber,
         ),
       ),
+    );
+  }
+
+  Future<void> _insertTicket(bool isDiscounted, String busOrNumber) async {
+    final now = DateTime.now();
+
+    await databaseHelper.insertTicket(
+      issuedAt: now,
+      startingStop: widget.startingStop,
+      destinationStop: selectedCard!,
+      fare: isDiscounted ? discountedFare : regularFare,
+      isDiscounted: isDiscounted,
+      busOrNumber: busOrNumber,
     );
   }
 
@@ -183,13 +206,6 @@ class _BusTicketScreenState extends State<BusTicketScreen> {
         actions: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: const [
-                Text("21:49"), // Mock time, adjust as needed
-                SizedBox(width: 8),
-                Icon(Icons.battery_std), // Mock battery icon, adjust as needed
-              ],
-            ),
           ),
         ],
       ),
