@@ -201,7 +201,7 @@ class _BusTicketScreenState extends State<BusTicketScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('EZBUS UAT'),
+        title: const Text('BALTRANSCO BUS TICKET'),
         centerTitle: true,
         actions: [
           Padding(

@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
-import 'headcount_screen.dart';
-import 'select_stop_screen.dart';
-import '../settings.dart';
-import 'tickets_today.dart';
-import '../departure_close_receipt.dart';
-import '../database_helper.dart';
-import '../background.dart'; // Import the Background widget
+import 'headcount_screen.dart';     // Import the HeadcountScreen
+import 'select_stop_screen.dart';   // Import the SelectStopScreen
+import '../settings.dart';          // Import the SettingsPage
+import 'tickets_today.dart';        // Import the TicketsTodayScreen
 
 class MenuScreen extends StatefulWidget {
   final void Function() onDepartureStart;
@@ -34,56 +31,13 @@ class MenuScreen extends StatefulWidget {
 }
 
 class _MenuScreenState extends State<MenuScreen> {
-  bool _isDepartureOpen = false;
-
   @override
   void initState() {
     super.initState();
-    _checkOpenDeparture();
-  }
-
-  Future<void> _checkOpenDeparture() async {
-    final dbHelper = DatabaseHelper();
-    final openDeparture = await dbHelper.getOpenDeparture();
-    setState(() {
-      _isDepartureOpen = openDeparture != null;
-    });
-  }
-
-  Future<void> _handleCloseDeparture() async {
-    if (_isDepartureOpen) {
-      await PrinterService.printDepartureCloseReceipt(
-        context: context,
-        line: '134 / Bancasi-Dumagalan to Ampayon Rotunda', // Example data
-        departureDate: '2024-08-14', // Example data
-        departureTime: '09:00 AM', // Example data
-        busNumber: '1234', // Example data
-        licensePlate: widget.licensePlate,
-        openingOr: 'OR123456', // Example data
-        openingSaleDateTime: DateTime.now().toString(),
-      );
-
-      // Close the departure
-      await DatabaseHelper().closeDeparture();
-
-      // Notify the parent widget
-      widget.onDepartureClose();
-      setState(() {
-        _isDepartureOpen = false;
-      });
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No open departure to close.')),
-      );
-    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    const buttonHeight = 60.0;
-    final buttonWidth = screenWidth * 0.5;  // Set the width to 50% of screen width
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('BUS MENU'),
@@ -117,106 +71,76 @@ class _MenuScreenState extends State<MenuScreen> {
           ),
         ],
       ),
-      body: Background(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                SizedBox(
-                  width: buttonWidth,
-                  height: buttonHeight,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const SelectStopScreen()),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const SelectStopScreen()),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
+                ),
+                child: const Text('BUS TICKET'),
+              ),
+              SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const HeadcountScreen()),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
+                ),
+                child: const Text('REPORTING TICKET'),
+              ),
+              SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => TicketsTodayScreen()),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
+                ),
+                child: const Text('VIEW TICKETS TODAY'),
+              ),
+              SizedBox(height: 16),
+              if (widget.departureClosed)
+                const Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Text(
+                    'Departure has been closed.',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.red,
                     ),
-                    child: const Text('BUS TICKET'),
                   ),
                 ),
-                SizedBox(height: 16),
-                SizedBox(
-                  width: buttonWidth,
-                  height: buttonHeight,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const HeadcountScreen()),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                    child: const Text('REPORTING TICKET'),
-                  ),
-                ),
-                SizedBox(height: 16),
-                SizedBox(
-                  width: buttonWidth,
-                  height: buttonHeight,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => TicketsTodayScreen()),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                    child: const Text('VIEW TICKETS TODAY'),
-                  ),
-                ),
-                SizedBox(height: 16),
-                SizedBox(
-                  width: buttonWidth,
-                  height: buttonHeight,
-                  child: ElevatedButton(
-                    onPressed: widget.departureStarted && !widget.departureClosed
-                        ? _handleCloseDeparture
-                        : null,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: widget.departureStarted && !widget.departureClosed
-                          ? Colors.red
-                          : Colors.black, // Black when disabled
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                    child: const Text('CLOSE DEPARTURE'),
-                  ),
-                ),
-                SizedBox(height: 16),
-                if (widget.departureClosed)
-                  const Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: Text(
-                      'Departure has been closed.',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.red,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
+            ],
           ),
         ),
       ),

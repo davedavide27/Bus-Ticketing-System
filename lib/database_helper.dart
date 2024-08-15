@@ -80,11 +80,7 @@ class DatabaseHelper {
   // Insert or update the license plate
   Future<void> insertLicensePlate(String licensePlate) async {
     final db = await database;
-
-    // Delete the existing plate
     await db.delete('license_plate');
-
-    // Insert the new plate
     await db.insert(
       'license_plate',
       {'plate_number': licensePlate},
@@ -105,11 +101,7 @@ class DatabaseHelper {
   // Insert or update the bus number
   Future<void> insertBusNumber(String busNumber) async {
     final db = await database;
-
-    // Delete the existing bus number
     await db.delete('bus_number');
-
-    // Insert the new bus number
     await db.insert(
       'bus_number',
       {'bus_number': busNumber},
@@ -140,11 +132,7 @@ class DatabaseHelper {
   // Insert multiple routes into the database
   Future<void> insertMultipleRoutes(List<String> routeNames) async {
     final db = await database;
-
-    // Start a batch
     final batch = db.batch();
-
-    // Add each route to the batch
     for (var route in routeNames) {
       batch.insert(
         'routes',
@@ -152,8 +140,6 @@ class DatabaseHelper {
         conflictAlgorithm: ConflictAlgorithm.ignore, // Avoid duplicates
       );
     }
-
-    // Execute the batch
     await batch.commit();
   }
 
@@ -260,11 +246,7 @@ class DatabaseHelper {
   // Insert or update the selected stop
   Future<void> storeSelectedStop(String stopName) async {
     final db = await database;
-
-    // Delete any existing selected stop
     await db.delete('selected_stop');
-
-    // Insert the new selected stop
     await db.insert(
       'selected_stop',
       {'stop_name': stopName},
@@ -288,17 +270,16 @@ class DatabaseHelper {
     await db.delete('selected_stop');
   }
 
-  // Check if there's an open departure
   Future<bool> hasOpenDeparture() async {
     final db = await database;
     final result = await db.query(
-      'departures',
-      where: 'is_open = ?',
-      whereArgs: [1], // 1 for open departure
+      'selected_stop',
+      where: 'end_time IS NULL',
       limit: 1,
     );
     return result.isNotEmpty;
   }
+
 
   // Start a new departure
   Future<void> startDeparture({
@@ -322,8 +303,6 @@ class DatabaseHelper {
   // Close an open departure
   Future<void> closeDeparture() async {
     final db = await database;
-
-    // Close the most recent open departure
     await db.update(
       'departures',
       {

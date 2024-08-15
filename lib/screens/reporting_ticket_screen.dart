@@ -33,7 +33,8 @@ class _ReportingTicketScreenState extends State<ReportingTicketScreen> {
     double totalFare = 0.0;
 
     if (tickets.isNotEmpty) {
-      line = tickets.first['starting_stop'];
+      // Set line to the starting stop of the last ticket
+      line = tickets.last['starting_stop'];
       checkpoint = tickets.last['destination_stop'];
       totalTickets = tickets.length;
       validTickets = tickets.where((ticket) => ticket['is_cancelled'] == 0).length;

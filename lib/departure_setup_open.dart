@@ -29,8 +29,6 @@ class _DepartureSetupPageState extends State<DepartureSetupPage> {
   DateTime _departureDate = DateTime.now();
   TimeOfDay _departureTime = TimeOfDay.now();
   String _busNumber = '';
-  String _openingOr = '';
-
   Future<void> _openDeparture() async {
     if (_selectedRoute == null || _busNumber.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
