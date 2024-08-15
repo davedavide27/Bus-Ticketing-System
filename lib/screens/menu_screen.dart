@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import '../background.dart';
 import 'headcount_screen.dart';
 import 'select_stop_screen.dart';
 import '../settings.dart';
 import 'tickets_today.dart';
-import '../departure_close_receipt.dart';
 import '../database_helper.dart';
-import '../background.dart'; // Import the Background widget
+import '../widgets/custom_button.dart'; // Import the custom button
 
 class MenuScreen extends StatefulWidget {
   final void Function() onDepartureStart;
@@ -50,40 +50,8 @@ class _MenuScreenState extends State<MenuScreen> {
     });
   }
 
-  Future<void> _handleCloseDeparture() async {
-    if (_isDepartureOpen) {
-      await PrinterService.printDepartureCloseReceipt(
-        context: context,
-        line: '134 / Bancasi-Dumagalan to Ampayon Rotunda', // Example data
-        departureDate: '2024-08-14', // Example data
-        departureTime: '09:00 AM', // Example data
-        busNumber: '1234', // Example data
-        licensePlate: widget.licensePlate,
-        openingOr: 'OR123456', // Example data
-        openingSaleDateTime: DateTime.now().toString(),
-      );
-
-      // Close the departure
-      await DatabaseHelper().closeDeparture();
-
-      // Notify the parent widget
-      widget.onDepartureClose();
-      setState(() {
-        _isDepartureOpen = false;
-      });
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No open departure to close.')),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    const buttonHeight = 60.0;
-    final buttonWidth = screenWidth * 0.5;  // Set the width to 50% of screen width
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('BUS MENU'),
@@ -101,7 +69,6 @@ class _MenuScreenState extends State<MenuScreen> {
                 },
               );
 
-              // Check if result is a Map and contains necessary data
               if (result is Map<String, dynamic>) {
                 final newLicensePlate = result['licensePlate'] as String? ?? widget.licensePlate;
                 final newRoutes = result['routes'] as List<String>? ?? widget.routes;
@@ -124,85 +91,36 @@ class _MenuScreenState extends State<MenuScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                SizedBox(
-                  width: buttonWidth,
-                  height: buttonHeight,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const SelectStopScreen()),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                    child: const Text('BUS TICKET'),
-                  ),
+                CustomButton(
+                  text: 'BUS TICKET',
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const SelectStopScreen()),
+                    );
+                  },
                 ),
-                SizedBox(height: 16),
-                SizedBox(
-                  width: buttonWidth,
-                  height: buttonHeight,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const HeadcountScreen()),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                    child: const Text('REPORTING TICKET'),
-                  ),
+                const SizedBox(height: 16),
+                CustomButton(
+                  text: 'REPORTING TICKET',
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const HeadcountScreen()),
+                    );
+                  },
                 ),
-                SizedBox(height: 16),
-                SizedBox(
-                  width: buttonWidth,
-                  height: buttonHeight,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => TicketsTodayScreen()),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                    child: const Text('VIEW TICKETS TODAY'),
-                  ),
+                const SizedBox(height: 16),
+                CustomButton(
+                  text: 'VIEW TICKETS TODAY',
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => TicketsTodayScreen()),
+                    );
+                  },
                 ),
-                SizedBox(height: 16),
-                SizedBox(
-                  width: buttonWidth,
-                  height: buttonHeight,
-                  child: ElevatedButton(
-                    onPressed: widget.departureStarted && !widget.departureClosed
-                        ? _handleCloseDeparture
-                        : null,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: widget.departureStarted && !widget.departureClosed
-                          ? Colors.red
-                          : Colors.black, // Black when disabled
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                    child: const Text('CLOSE DEPARTURE'),
-                  ),
-                ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 if (widget.departureClosed)
                   const Padding(
                     padding: EdgeInsets.all(16.0),
