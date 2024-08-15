@@ -4,7 +4,6 @@ import 'headcount_screen.dart';     // Import the HeadcountScreen
 import 'select_stop_screen.dart';   // Import the SelectStopScreen
 import '../settings.dart';          // Import the SettingsPage
 import 'tickets_today.dart';        // Import the TicketsTodayScreen
-import '../departure_close_receipt.dart'; // Import the PrinterService class
 import '../database_helper.dart'; // Import DatabaseHelper
 
 class MenuScreen extends StatefulWidget {
