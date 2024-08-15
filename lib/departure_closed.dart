@@ -93,16 +93,3 @@ ${DateFormat('MM/dd/yyyy HH:mm:ss').format(DateTime.now())}
   }
 }
 
-Future<bool> checkDepartureStatus(BuildContext context) async {
-  // Replace with actual logic to check departure status
-  bool isDepartureOpen = true; // Placeholder implementation
-
-  if (isDepartureOpen) {
-    return true;
-  } else {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('No open departure found')),
-    );
-    return false;
-  }
-}

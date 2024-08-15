@@ -27,7 +27,7 @@ Bus number: $busNumber
 License Plate: $licensePlate
 Opening OR: $openingOr
 ------------------------------
-Opening sale date and time: 
+Closing sale date and time: 
       $openingSaleDateTime
 ------------------------------
 

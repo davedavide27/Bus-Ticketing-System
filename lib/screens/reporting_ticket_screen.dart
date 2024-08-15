@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:senraise_printer/senraise_printer.dart'; // Import the senraise_printer package
 import '../database_helper.dart'; // Adjust the path as needed
 
 class ReportingTicketScreen extends StatefulWidget {
@@ -12,6 +13,7 @@ class ReportingTicketScreen extends StatefulWidget {
 
 class _ReportingTicketScreenState extends State<ReportingTicketScreen> {
   late Future<Map<String, dynamic>> _reportDataFuture;
+  final SenraisePrinter _senraisePrinter = SenraisePrinter(); // Create an instance of SenraisePrinter
 
   @override
   void initState() {
@@ -33,7 +35,8 @@ class _ReportingTicketScreenState extends State<ReportingTicketScreen> {
     double totalFare = 0.0;
 
     if (tickets.isNotEmpty) {
-      line = tickets.first['starting_stop'];
+      // Set line to the starting stop of the last ticket
+      line = tickets.last['starting_stop'];
       checkpoint = tickets.last['destination_stop'];
       totalTickets = tickets.length;
       validTickets = tickets.where((ticket) => ticket['is_cancelled'] == 0).length;
@@ -52,6 +55,33 @@ class _ReportingTicketScreenState extends State<ReportingTicketScreen> {
       'cancelledTickets': totalTickets - validTickets,
       'totalFare': totalFare,
     };
+  }
+
+  Future<void> _printReport(Map<String, dynamic> reportData) async {
+    // Prepare the text to print
+    final printContent = '''
+SPECIFICATION OF SOLD TICKETS
+
+Line: ${reportData['line'] ?? 'N/A'}
+Passengers Summary
+Checkpoint: ${reportData['checkpoint'] ?? 'N/A'}
+On-board Passengers: ${widget.headcount}
+------------------------
+Headcount: ${widget.headcount} Passenger(s)
+Discrepancy: ${reportData['discrepancies']} Passengers
+Total Passengers: ${reportData['totalTickets']}
+Cancelled Tickets: ${reportData['cancelledTickets']}
+Total Valid Tickets: ${reportData['validTickets']}
+Total Fare Collected: \₱${reportData['totalFare'].toStringAsFixed(2)}
+    ''';
+
+    // Print the content using SenraisePrinter instance
+    try {
+      await _senraisePrinter.printText(printContent); // Print the prepared content
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Print successful!')));
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Print failed: $e')));
+    }
   }
 
   @override
@@ -113,7 +143,7 @@ class _ReportingTicketScreenState extends State<ReportingTicketScreen> {
                     ),
                     ElevatedButton(
                       onPressed: () {
-                        // Implement printing logic here
+                        _printReport(reportData); // Print the report
                       },
                       child: const Text('Print'),
                     ),
