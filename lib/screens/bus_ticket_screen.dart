@@ -201,7 +201,7 @@ class _BusTicketScreenState extends State<BusTicketScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('BALTRANSCO BUS TICKET'),
+        title: const Text('EZBUS UAT'),
         centerTitle: true,
         actions: [
           Padding(
@@ -305,8 +305,22 @@ class _BusTicketScreenState extends State<BusTicketScreen> {
                       : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.orange,
+                    minimumSize: Size(150, 60), // Uniform size for buttons
                   ),
-                  child: Text('DISCOUNTED\n₱${discountedFare.toStringAsFixed(2)}'),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'DISCOUNTED',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 4), // Space between text and amount
+                      Text(
+                        '₱${discountedFare.toStringAsFixed(2)}',
+                        style: TextStyle(fontSize: 14),
+                      ),
+                    ],
+                  ),
                 ),
                 ElevatedButton(
                   onPressed: selectedCard != null
@@ -316,8 +330,22 @@ class _BusTicketScreenState extends State<BusTicketScreen> {
                       : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.orange,
+                    minimumSize: Size(150, 60), // Uniform size for buttons
                   ),
-                  child: Text('REGULAR\n₱${regularFare.toStringAsFixed(2)}'),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'REGULAR',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 4), // Space between text and amount
+                      Text(
+                        '₱${regularFare.toStringAsFixed(2)}',
+                        style: TextStyle(fontSize: 14),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
