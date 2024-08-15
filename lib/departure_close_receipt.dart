@@ -4,8 +4,8 @@ import 'package:senraise_printer/senraise_printer.dart';
 class PrinterService {
   static final _senraisePrinterPlugin = SenraisePrinter();
 
-  // Method to print a receipt with specified details
-  static Future<void> printReceipt({
+  // Method to print a departure close receipt
+  static Future<void> printDepartureCloseReceipt({
     required BuildContext context,
     required String line,
     required String departureDate,
@@ -17,9 +17,8 @@ class PrinterService {
   }) async {
     // Construct the receipt content
     String receiptContent = '''
-    
 ------------------------------
-DEPARTURE OPEN RECEIPT
+DEPARTURE CLOSE RECEIPT
 ------------------------------
 Line: $line
 Departure date: $departureDate
