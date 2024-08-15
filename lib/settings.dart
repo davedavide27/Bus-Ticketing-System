@@ -105,60 +105,82 @@ class _SettingsPageState extends State<SettingsPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Settings'),
+        actions: [
+          IconButton(
+            icon: const Icon(
+              Icons.save,
+              size: 30.0, // Adjust the size as needed
+            ),
+            onPressed: _saveSettings,
+          ),
+        ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            TextField(
-              controller: licensePlateController,
-              decoration: const InputDecoration(
-                labelText: 'License Plate',
-                border: OutlineInputBorder(),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              TextField(
+                controller: licensePlateController,
+                decoration: const InputDecoration(
+                  labelText: 'License Plate',
+                  border: OutlineInputBorder(),
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: busNumberController,
-              decoration: const InputDecoration(
-                labelText: 'Bus Number',
-                border: OutlineInputBorder(),
+              const SizedBox(height: 16),
+              TextField(
+                controller: busNumberController,
+                decoration: const InputDecoration(
+                  labelText: 'Bus Number',
+                  border: OutlineInputBorder(),
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: routeController,
-              decoration: const InputDecoration(
-                labelText: 'Add Route',
-                border: OutlineInputBorder(),
+              const SizedBox(height: 16),
+              TextField(
+                controller: routeController,
+                decoration: const InputDecoration(
+                  labelText: 'Add Route',
+                  border: OutlineInputBorder(),
+                ),
               ),
-            ),
-            ElevatedButton(
-              onPressed: _addRoute,
-              child: const Text('Add Route'),
-            ),
-            const SizedBox(height: 16),
-            Expanded(
-              child: ListView.builder(
+              ElevatedButton(
+                onPressed: _addRoute,
+                child: const Text('Add Route'),
+              ),
+              const SizedBox(height: 16),
+              ListView.builder(
+                shrinkWrap: true, // Use shrinkWrap to make the ListView occupy only as much space as its children need
+                physics: const NeverScrollableScrollPhysics(), // Disable scrolling for the ListView
                 itemCount: routes.length,
                 itemBuilder: (context, index) {
                   final route = routes[index];
-                  return ListTile(
-                    title: Text(route),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.delete),
-                      onPressed: () => _deleteRoute(index),
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 8.0),
+                    padding: const EdgeInsets.all(8.0),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          route,
+                          style: const TextStyle(fontSize: 16.0),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.delete),
+                          onPressed: () => _deleteRoute(index),
+                        ),
+                      ],
                     ),
                   );
                 },
               ),
-            ),
-            ElevatedButton(
-              onPressed: _saveSettings,
-              child: const Text('Save Settings'),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
