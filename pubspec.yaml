@@ -43,6 +43,8 @@ dependencies:
   cupertino_icons: ^1.0.6
   senraise_printer: ^0.0.4
   path_provider: ^2.0.13
+  animated_splash_screen: ^1.3.0
+  lottie: ^3.1.2
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -67,8 +69,8 @@ flutter:
   fonts:
     - family: Poppins
       fonts:
-        - asset: fonts/Poppins-Regular.ttf
-        - asset: fonts/Poppins-Bold.ttf
+        - asset: assets/fonts/Poppins-Regular.ttf
+        - asset: assets/fonts/Poppins-Bold.ttf
           weight: 700
 
 
