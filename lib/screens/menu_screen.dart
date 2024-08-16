@@ -48,7 +48,6 @@ class _MenuScreenState extends State<MenuScreen> {
       _isDepartureOpen = openDeparture != null;
     });
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -68,6 +67,7 @@ class _MenuScreenState extends State<MenuScreen> {
                 },
               );
 
+              // Check if result is a Map and contains necessary data
               if (result is Map<String, dynamic>) {
                 final newLicensePlate = result['licensePlate'] as String? ?? widget.licensePlate;
                 final newRoutes = result['routes'] as List<String>? ?? widget.routes;
@@ -102,11 +102,11 @@ class _MenuScreenState extends State<MenuScreen> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
+                    padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
                   ),
                   child: const Text('BUS TICKET'),
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: () {
                     Navigator.push(
@@ -119,11 +119,11 @@ class _MenuScreenState extends State<MenuScreen> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
+                    padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
                   ),
                   child: const Text('REPORTING TICKET'),
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: () {
                     Navigator.push(
@@ -136,10 +136,23 @@ class _MenuScreenState extends State<MenuScreen> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
+                    padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
                   ),
                   child: const Text('VIEW TICKETS TODAY'),
                 ),
+                SizedBox(height: 16),
+                if (widget.departureClosed)
+                  const Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Text(
+                      'Departure has been closed.',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.red,
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),
