@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'screens/menu_screen.dart'; // Import the MenuScreen
 import 'splash_screen.dart'; // Import the SplashScreen
 import 'departure_setup_open.dart'; // Import the DepartureSetupPage
 import 'settings.dart'; // Import the SettingsPage
