@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import '../background.dart'; // Import the Background widget
-import 'headcount_screen.dart';     // Import the HeadcountScreen
-import 'select_stop_screen.dart';   // Import the SelectStopScreen
-import '../settings.dart';          // Import the SettingsPage
-import 'tickets_today.dart';        // Import the TicketsTodayScreen
+import 'headcount_screen.dart'; // Import the HeadcountScreen
+import 'select_stop_screen.dart'; // Import the SelectStopScreen
+import '../settings.dart'; // Import the SettingsPage
+import 'tickets_today.dart'; // Import the TicketsTodayScreen
 import '../database_helper.dart'; // Import DatabaseHelper
 
 class MenuScreen extends StatefulWidget {
@@ -50,7 +50,6 @@ class _MenuScreenState extends State<MenuScreen> {
   }
 
   Future<bool> _onWillPop() async {
-    // Show the confirmation dialog
     final result = await showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -78,6 +77,24 @@ class _MenuScreenState extends State<MenuScreen> {
     return result ?? false; // If result is null, return false
   }
 
+  // Helper function to build a uniform button
+  Widget _buildMenuButton(String text, VoidCallback onPressed) {
+    return FractionallySizedBox(
+      widthFactor: 0.4, // 50% of the screen width
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.orange,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          padding: EdgeInsets.symmetric(vertical: 15),
+        ),
+        child: Text(text),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -99,7 +116,6 @@ class _MenuScreenState extends State<MenuScreen> {
                   },
                 );
 
-                // Check if result is a Map and contains necessary data
                 if (result is Map<String, dynamic>) {
                   final newLicensePlate = result['licensePlate'] as String? ?? widget.licensePlate;
                   final newRoutes = result['routes'] as List<String>? ?? widget.routes;
@@ -116,78 +132,61 @@ class _MenuScreenState extends State<MenuScreen> {
           ],
         ),
         body: Background(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const SelectStopScreen()),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
-                    ),
-                    child: const Text('BUS TICKET'),
-                  ),
-                  SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const HeadcountScreen()),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
-                    ),
-                    child: const Text('REPORTING TICKET'),
-                  ),
-                  SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => TicketsTodayScreen()),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
-                    ),
-                    child: const Text('VIEW TICKETS TODAY'),
-                  ),
-                  SizedBox(height: 16),
-                  if (widget.departureClosed)
-                    const Padding(
-                      padding: EdgeInsets.all(16.0),
-                      child: Text(
-                        'Departure has been closed.',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.red,
+          child: Column(
+            children: <Widget>[
+              Expanded(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      _buildMenuButton('BUS TICKET', () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const SelectStopScreen()),
+                        );
+                      }),
+                      SizedBox(height: 16),
+                      _buildMenuButton('REPORTING TICKET', () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const HeadcountScreen()),
+                        );
+                      }),
+                      SizedBox(height: 16),
+                      _buildMenuButton('VIEW TICKETS TODAY', () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => TicketsTodayScreen()),
+                        );
+                      }),
+                      if (widget.departureClosed)
+                        const Padding(
+                          padding: EdgeInsets.all(16.0),
+                          child: Text(
+                            'Departure has been closed.',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.red,
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                ],
+                    ],
+                  ),
+                ),
               ),
-            ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16.0),
+                child: const Text(
+                  'Created By: Dave Davide & Vince Carl Aratan',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ],
           ),
         ),
       ),
