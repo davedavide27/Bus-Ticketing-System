@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'screens/menu_screen.dart'; // Import the MenuScreen
+import 'splash_screen.dart'; // Import the SplashScreen
 import 'departure_setup_open.dart'; // Import the DepartureSetupPage
 import 'settings.dart'; // Import the SettingsPage
 import 'database_helper.dart';
@@ -142,16 +143,7 @@ class _MyAppState extends State<MyApp> {
       ),
       home: WillPopScope(
         onWillPop: _onWillPop,
-        child: MenuScreen(
-          onDepartureStart: _startDeparture,
-          onDepartureClose: _stopDeparture,
-          departureStarted: departureStarted,
-          departureClosed: departureClosed,
-          licensePlate: licensePlate,
-          onLicensePlateChanged: _updateLicensePlate,
-          routes: routes,
-          onRoutesChanged: _updateRoutes,
-        ),
+        child: const SplashScreen(), // Display the splash screen first
       ),
       routes: {
         DepartureSetupPage.routeName: (context) => DepartureSetupPage(
