@@ -39,8 +39,13 @@ class _ReportingTicketScreenState extends State<ReportingTicketScreen> {
       line = tickets.last['starting_stop'];
       checkpoint = tickets.last['destination_stop'];
       totalTickets = tickets.length;
-      validTickets = tickets.where((ticket) => ticket['is_cancelled'] == 0).length;
-      totalFare = tickets.fold(0.0, (sum, ticket) => sum + (ticket['fare'] as double));
+
+      // Filter out valid tickets and sum their fares
+      final validTicketList = tickets.where((
+          ticket) => ticket['is_cancelled'] == 0).toList();
+      validTickets = validTicketList.length;
+      totalFare = validTicketList.fold(
+          0.0, (sum, ticket) => sum + (ticket['fare'] as double));
     }
 
     // Calculate discrepancies
@@ -77,10 +82,13 @@ Total Fare Collected: \₱${reportData['totalFare'].toStringAsFixed(2)}
 
     // Print the content using SenraisePrinter instance
     try {
-      await _senraisePrinter.printText(printContent); // Print the prepared content
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Print successful!')));
+      await _senraisePrinter.printText(
+          printContent); // Print the prepared content
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Print successful!')));
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Print failed: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Print failed: $e')));
     }
   }
 
@@ -90,7 +98,7 @@ Total Fare Collected: \₱${reportData['totalFare'].toStringAsFixed(2)}
       appBar: AppBar(
         title: const Text('Reporting Ticket'),
       ),
-      body: Padding(
+      body: SingleChildScrollView( // Added this to prevent overflow
         padding: const EdgeInsets.all(16.0),
         child: FutureBuilder<Map<String, dynamic>>(
           future: _reportDataFuture,
@@ -119,7 +127,8 @@ Total Fare Collected: \₱${reportData['totalFare'].toStringAsFixed(2)}
                 const SizedBox(height: 10),
                 Text('Line: ${reportData['line'] ?? 'N/A'}'),
                 const SizedBox(height: 10),
-                const Text('Passengers Summary', style: TextStyle(fontWeight: FontWeight.bold)),
+                const Text('Passengers Summary',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
                 Text('Checkpoint: ${reportData['checkpoint'] ?? 'N/A'}'),
                 Text('On-board Passengers: ${widget.headcount}'),
                 const SizedBox(height: 10),
@@ -130,7 +139,8 @@ Total Fare Collected: \₱${reportData['totalFare'].toStringAsFixed(2)}
                 Text('Total Passengers: ${reportData['totalTickets']}'),
                 Text('Cancelled Tickets: ${reportData['cancelledTickets']}'),
                 Text('Total Valid Tickets: ${reportData['validTickets']}'),
-                Text('Total Fare Collected: \₱${reportData['totalFare'].toStringAsFixed(2)}'),
+                Text('Total Fare Collected: \₱${reportData['totalFare']
+                    .toStringAsFixed(2)}'),
                 const SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
