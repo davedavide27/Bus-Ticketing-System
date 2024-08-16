@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../database_helper.dart'; // Adjust the path as needed
+import '../database_helper.dart';
+import 'all_tickets.dart'; // Import the AllTicketsScreen
 
 class TicketsTodayScreen extends StatefulWidget {
   @override
@@ -27,7 +28,17 @@ class _TicketsTodayScreenState extends State<TicketsTodayScreen> {
 
   Future<List<Map<String, dynamic>>> _fetchTicketsForToday() async {
     final dbHelper = DatabaseHelper();
-    return await dbHelper.getAllTickets();
+    final allTickets = await dbHelper.getAllTickets();
+
+    final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
+
+    final todayTickets = allTickets.where((ticket) {
+      final issuedAt = DateTime.parse(ticket['issued_at']);
+      final issuedDate = DateFormat('yyyy-MM-dd').format(issuedAt);
+      return issuedDate == today;
+    }).toList();
+
+    return todayTickets;
   }
 
   void _filterTickets(String query) {
@@ -46,7 +57,6 @@ class _TicketsTodayScreenState extends State<TicketsTodayScreen> {
     return dateFormat.format(dateTime);
   }
 
-  // Define custom text styles
   TextStyle _ticketTitleStyle(BuildContext context) {
     return TextStyle(
       fontSize: 18.0,
@@ -62,11 +72,10 @@ class _TicketsTodayScreenState extends State<TicketsTodayScreen> {
     );
   }
 
-  // Function to show confirmation dialog
   Future<void> _showCancelTicketDialog(int ticketId) async {
     return showDialog<void>(
       context: context,
-      barrierDismissible: false, // Prevent dismissing by tapping outside
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Cancel Ticket'),
@@ -75,22 +84,20 @@ class _TicketsTodayScreenState extends State<TicketsTodayScreen> {
             TextButton(
               child: const Text('Cancel'),
               onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
+                Navigator.of(context).pop();
               },
             ),
             TextButton(
               child: const Text('OK'),
               onPressed: () async {
-                // Update the ticket status
                 final dbHelper = DatabaseHelper();
                 await dbHelper.updateTicketCancellation(ticketId, true);
-                // Refresh the list
                 final updatedTickets = await _fetchTicketsForToday();
                 setState(() {
                   _allTickets = updatedTickets;
                   _filterTickets(_searchQuery);
                 });
-                Navigator.of(context).pop(); // Close the dialog
+                Navigator.of(context).pop();
               },
             ),
           ],
@@ -105,6 +112,21 @@ class _TicketsTodayScreenState extends State<TicketsTodayScreen> {
       appBar: AppBar(
         title: const Text('Tickets Issued Today'),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: Icon(
+              Icons.list,
+              size: 35.0, // Adjust the size as needed
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => AllTicketsScreen()),
+              );
+            },
+            tooltip: 'View All Tickets',
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -147,7 +169,8 @@ class _TicketsTodayScreenState extends State<TicketsTodayScreen> {
                     final isCancelled = ticket['is_cancelled'] == 1;
 
                     return Container(
-                      margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                      margin: const EdgeInsets.symmetric(
+                          vertical: 8.0, horizontal: 16.0),
                       child: Card(
                         elevation: 5,
                         shape: RoundedRectangleBorder(
@@ -155,7 +178,9 @@ class _TicketsTodayScreenState extends State<TicketsTodayScreen> {
                         ),
                         color: isCancelled ? Colors.grey[300] : Colors.white,
                         child: InkWell(
-                          onTap: isCancelled ? null : () {
+                          onTap: isCancelled
+                              ? null
+                              : () {
                             _showCancelTicketDialog(ticket['id']);
                           },
                           child: Padding(

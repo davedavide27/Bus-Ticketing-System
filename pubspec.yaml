@@ -62,6 +62,15 @@ flutter:
   assets:
     - assets/images/logo.jfif
     - assets/images/BALTRANSCO.png
+    - assets/lottie/Animation - 1723779223163.json
+
+  fonts:
+    - family: Poppins
+      fonts:
+        - asset: fonts/Poppins-Regular.ttf
+        - asset: fonts/Poppins-Bold.ttf
+          weight: 700
+
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
