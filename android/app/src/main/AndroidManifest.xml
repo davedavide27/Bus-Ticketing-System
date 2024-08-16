@@ -7,7 +7,7 @@
 
     <!-- Application configuration -->
     <application
-        android:label="flutter_apps"
+        android:label="Bus Ticket"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
 
