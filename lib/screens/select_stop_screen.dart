@@ -5,7 +5,6 @@ import '../printer_service.dart'; // Import PrinterService
 import '../or_number_service.dart'; // Import ORNumberService
 import 'package:intl/intl.dart';
 
-
 class SelectStopScreen extends StatefulWidget {
   const SelectStopScreen({Key? key}) : super(key: key);
 
@@ -37,7 +36,7 @@ class _SelectStopScreenState extends State<SelectStopScreen> {
     setState(() {
       licensePlate = plate ?? '';
       busNumber = busNum ?? ''; // Set the bus number
-      stops = routeList;
+      stops = routeList.where((stop) => stop != 'Ampayon Rotunda KM 16').toList(); // Filter out the stop
     });
   }
 
@@ -63,7 +62,6 @@ class _SelectStopScreenState extends State<SelectStopScreen> {
       );
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
