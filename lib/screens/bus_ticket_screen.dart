@@ -65,12 +65,10 @@ class _BusTicketScreenState extends State<BusTicketScreen> {
       'Ampayon Rotunda KM 16',
     ];
 
-    // Check if we need to reverse the order of stops initially
     if (widget.reverseOrder) {
       allStops = allStops.reversed.toList();
     }
 
-    // Set the initial selected stop and available stops
     selectedStop = widget.startingStop;
     _updateAvailableStops();
   }
@@ -85,11 +83,9 @@ class _BusTicketScreenState extends State<BusTicketScreen> {
   void _reverseStopsOrder() {
     setState(() {
       allStops = allStops.reversed.toList();
-      // Adjust the KM numbers accordingly
       for (int i = 0; i < allStops.length; i++) {
         allStops[i] = allStops[i].replaceAll(RegExp(r'KM \d+'), 'KM $i');
       }
-      // Reset the selected stop to the first stop in the new order
       selectedStop = allStops.first;
       _updateAvailableStops();
     });
@@ -123,26 +119,22 @@ class _BusTicketScreenState extends State<BusTicketScreen> {
   }
 
   void _calculateFare() {
-    // Extract KM number from the selected starting and destination stops
     String? startKm = selectedStop?.split('KM ').last;
     String? destinationKm = selectedCard?.split('KM ').last;
 
     if (startKm != null && destinationKm != null) {
       int startKmNumber = int.parse(startKm);
       int destinationKmNumber = int.parse(destinationKm);
-      int distance = destinationKmNumber - startKmNumber;
+      int distance = (widget.reverseOrder ? startKmNumber - destinationKmNumber : destinationKmNumber - startKmNumber).abs();
 
       if (distance > 0) {
         if (distance <= 4) {
-          // First 4 kilometers
           setState(() {
             regularFare = 15.0;
             discountedFare = 12.0;
           });
         } else if (distance - 4 <= fareSteps.length) {
-          // Beyond 4 kilometers, use the fareSteps list
-          int fareIndex = distance - 5; // Because the first 4 kms are fixed
-
+          int fareIndex = distance - 5;
           setState(() {
             regularFare = fareSteps[fareIndex]['regular']!;
             discountedFare = fareSteps[fareIndex]['discounted']!;
@@ -163,13 +155,10 @@ class _BusTicketScreenState extends State<BusTicketScreen> {
   }
 
   void _showReceipt(bool isDiscounted) async {
-    // Fetch the OR number
     final busOrNumber = await ORNumberService.getNextORNumber();
 
-    // Save ticket details to the database
     await _insertTicket(isDiscounted, busOrNumber);
 
-    // Navigate to the ReceiptScreen with the fetched OR number
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -239,8 +228,9 @@ class _BusTicketScreenState extends State<BusTicketScreen> {
                         setState(() {
                           selectedStop = newValue;
                           _updateAvailableStops();
-                          // Check if last stop is selected
-                          if (newValue == 'Ampayon Rotunda KM 16') {
+                          if (newValue.contains('Ampayon Rotunda')) {
+                            _reverseStopsOrder();
+                          } else if (newValue.contains('BANCASI-DUMALAGAN')) {
                             _reverseStopsOrder();
                           }
                         });
