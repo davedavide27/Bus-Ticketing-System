@@ -163,7 +163,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           style: const TextStyle(fontSize: 16.0),
                         ),
                         IconButton(
-                          icon: const Icon(Icons.delete),
+                          icon: const Icon(Icons.delete_sweep),
                           onPressed: () => _deleteRoute(index),
                         ),
                       ],
