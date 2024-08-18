@@ -52,7 +52,7 @@ class _MyAppState extends State<MyApp> {
       'BANCASI-DUMALAGAN KM 0',
       'CEMETERY KM 1',
       'BANCASI ROTUNDA KM 2',
-      'IDEMI - TOYOTA KM 3',
+      'IDEAL - TOYOTA KM 3',
       'LIBERTAD SPORTS COMPLEX KM 4',
       'FERNANDEZ - SALAS KM 5',
       'BUTUAN DOCTORS - DOTTIES KM 6',

@@ -37,8 +37,7 @@ class _SelectStopScreenState extends State<SelectStopScreen> {
     setState(() {
       licensePlate = plate ?? '';
       busNumber = busNum ?? ''; // Set the bus number
-      stops = routeList.where((stop) => stop != 'Ampayon Rotunda KM 16')
-          .toList(); // Filter out the stop
+      stops = routeList;
     });
   }
 

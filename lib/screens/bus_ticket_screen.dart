@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart'; // Import for showing notifications
+import '../animated_overlay.dart'; // Import the new animation file
 import 'receipt_screen.dart'; // Adjust the path based on your project structure
 import '../database_helper.dart'; // Import your database helper class
 
@@ -16,7 +18,7 @@ class BusTicketScreen extends StatefulWidget {
   _BusTicketScreenState createState() => _BusTicketScreenState();
 }
 
-class _BusTicketScreenState extends State<BusTicketScreen> {
+class _BusTicketScreenState extends State<BusTicketScreen> with SingleTickerProviderStateMixin {
   final databaseHelper = DatabaseHelper();
   List<String> allStops = [];
   List<String> availableStops = [];
@@ -25,10 +27,23 @@ class _BusTicketScreenState extends State<BusTicketScreen> {
 
   double regularFare = 0.0;
   double discountedFare = 0.0;
+  bool isReversed = false;
+  bool showOverlay = false;
+  late AnimationController _animationController;
+  late Animation<double> _animation;
 
   @override
   void initState() {
     super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    _animation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    );
+
     _loadSelectedStopFromDatabase();
     _loadRoutesFromDatabase();
   }
@@ -39,8 +54,16 @@ class _BusTicketScreenState extends State<BusTicketScreen> {
       setState(() {
         allStops = routes;
 
-        if (widget.reverseOrder) {
+        if (widget.reverseOrder || isReversed) {
           allStops = allStops.reversed.toList();
+        }
+
+        // Update selected stop and available stops
+        if (widget.reverseOrder || isReversed) {
+          selectedStop = allStops.firstWhere(
+                (stop) => stop == selectedStop,
+            orElse: () => allStops.first,
+          );
         }
 
         _updateAvailableStops();
@@ -80,18 +103,38 @@ class _BusTicketScreenState extends State<BusTicketScreen> {
       selectedStop = newStop;
       _updateAvailableStops();
       _storeSelectedStop(); // Save selected stop to database
-      if (newStop.contains('Ampayon Rotunda') || newStop.contains('BANCASI-DUMALAGAN')) {
-        _reverseStopsOrder();
-      }
     });
   }
 
-  void _reverseStopsOrder() {
+  void _toggleReverseOrder() {
     setState(() {
+      isReversed = !isReversed;
       allStops = allStops.reversed.toList();
-      selectedStop = allStops.first;
+      selectedStop = allStops.firstWhere(
+            (stop) => stop == selectedStop,
+        orElse: () => allStops.first,
+      );
       _updateAvailableStops();
     });
+
+    _animationController.forward().then((_) {
+      setState(() {
+        showOverlay = true;
+      });
+      Future.delayed(const Duration(seconds: 2), () {
+        _animationController.reverse().then((_) {
+          setState(() {
+            showOverlay = false;
+          });
+        });
+      });
+    });
+
+    Fluttertoast.showToast(
+      msg: isReversed ? "Route is reversed" : "Route is in original order",
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.TOP,
+    );
   }
 
   void _moveToNextStop() {
@@ -122,7 +165,7 @@ class _BusTicketScreenState extends State<BusTicketScreen> {
     if (startKm != null && destinationKm != null) {
       final startKmNumber = int.tryParse(startKm) ?? 0;
       final destinationKmNumber = int.tryParse(destinationKm) ?? 0;
-      final distance = (widget.reverseOrder
+      final distance = (isReversed
           ? startKmNumber - destinationKmNumber
           : destinationKmNumber - startKmNumber)
           .abs();
@@ -176,149 +219,169 @@ class _BusTicketScreenState extends State<BusTicketScreen> {
   }
 
   @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Bus Ticket System'),
+        title: const Text('Bus Ticket Menu'),
         centerTitle: true,
         actions: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+          IconButton(
+            iconSize: 40, // Adjust the size of the button
+            onPressed: _toggleReverseOrder,
+            icon: const Icon(Icons.swap_vert),
           ),
+          const SizedBox(width: 16),
         ],
       ),
-      body: Column(
+      body: Stack(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                ElevatedButton(
-                  onPressed: _moveToPreviousStop,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
-                  ),
-                  child: const Text('PREV'),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: DropdownButton<String>(
-                    value: selectedStop,
-                    icon: const Icon(Icons.arrow_downward),
-                    isExpanded: true,
-                    elevation: 16,
-                    style: const TextStyle(color: Colors.black),
-                    underline: Container(
-                      height: 2,
-                      color: Colors.orange,
+          Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: [
+                    ElevatedButton(
+                      onPressed: _moveToPreviousStop,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange,
+                        minimumSize: const Size(100, 40), // Adjust the size of the button
+                      ),
+                      child: const Text('PREV'),
                     ),
-                    onChanged: (String? newValue) {
-                      if (newValue != null) {
-                        _updateSelectedStop(newValue); // Update and store selected stop
-                      }
-                    },
-                    items: allStops.map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(
-                          value,
-                          overflow: TextOverflow.ellipsis,
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: DropdownButton<String>(
+                        value: selectedStop,
+                        icon: const Icon(Icons.arrow_downward),
+                        isExpanded: true,
+                        elevation: 16,
+                        style: const TextStyle(color: Colors.black),
+                        underline: Container(
+                          height: 2,
+                          color: Colors.orange,
                         ),
-                      );
-                    }).toList(),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed: _moveToNextStop,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
-                  ),
-                  child: const Text('NEXT'),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: GridView.count(
-              crossAxisCount: 2,
-              childAspectRatio: 3,
-              children: List.generate(availableStops.length, (index) {
-                return Padding(
-                  padding: const EdgeInsets.all(4.0),
-                  child: GestureDetector(
-                    onTap: () => _onCardTapped(availableStops[index]),
-                    child: Card(
-                      color: availableStops[index] == selectedCard
-                          ? Colors.orange
-                          : Colors.grey.shade300,
-                      child: Center(
-                        child: Text(
-                          availableStops[index],
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(fontSize: 16),
-                        ),
+                        onChanged: (String? newValue) {
+                          if (newValue != null) {
+                            _updateSelectedStop(newValue); // Update and store selected stop
+                          }
+                        },
+                        items: allStops.map<DropdownMenuItem<String>>((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(
+                              value,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          );
+                        }).toList(),
                       ),
                     ),
-                  ),
-                );
-              }),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(
-                  onPressed: selectedCard != null
-                      ? () => _showReceipt(true) // Discounted fare
-                      : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
-                    minimumSize: const Size(150, 60),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        'DISCOUNTED',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      onPressed: _moveToNextStop,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange,
+                        minimumSize: const Size(100, 40), // Adjust the size of the button
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '₱${discountedFare.toStringAsFixed(2)}',
-                        style: const TextStyle(fontSize: 14),
-                      ),
-                    ],
-                  ),
+                      child: const Text('NEXT'),
+                    ),
+                  ],
                 ),
-                ElevatedButton(
-                  onPressed: selectedCard != null
-                      ? () => _showReceipt(false) // Regular fare
-                      : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
-                    minimumSize: const Size(150, 60),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        'REGULAR',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              Expanded(
+                child: GridView.count(
+                  crossAxisCount: 2,
+                  childAspectRatio: 3,
+                  children: List.generate(availableStops.length, (index) {
+                    return Padding(
+                      padding: const EdgeInsets.all(4.0),
+                      child: GestureDetector(
+                        onTap: () => _onCardTapped(availableStops[index]),
+                        child: Card(
+                          color: availableStops[index] == selectedCard
+                              ? Colors.orange
+                              : Colors.grey.shade300,
+                          child: Center(
+                            child: Text(
+                              availableStops[index],
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                          ),
+                        ),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '₱${regularFare.toStringAsFixed(2)}',
-                        style: const TextStyle(fontSize: 14),
-                      ),
-                    ],
-                  ),
+                    );
+                  }),
                 ),
-              ],
-            ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton(
+                      onPressed: selectedCard != null
+                          ? () => _showReceipt(true) // Discounted fare
+                          : null,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange,
+                        minimumSize: const Size(150, 60), // Adjust the size of the button
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text(
+                            'DISCOUNTED',
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '₱${discountedFare.toStringAsFixed(2)}',
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                        ],
+                      ),
+                    ),
+                    ElevatedButton(
+                      onPressed: selectedCard != null
+                          ? () => _showReceipt(false) // Regular fare
+                          : null,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange,
+                        minimumSize: const Size(150, 60), // Adjust the size of the button
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text(
+                            'REGULAR',
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '₱${regularFare.toStringAsFixed(2)}',
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
+          if (showOverlay)
+            AnimatedOverlay(
+              message: "Routes have been reversed", // Provide message parameter
+              show: showOverlay, // Provide show parameter
+            ),
         ],
       ),
     );
