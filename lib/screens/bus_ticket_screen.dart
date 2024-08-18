@@ -129,7 +129,7 @@ class _BusTicketScreenState extends State<BusTicketScreen> {
 
       if (distance > 0) {
         const baseFare = 15.0;
-        final additionalFare = (distance > 4) ? (distance - 4) * 2.0 : 0.0;
+        final additionalFare = (distance > 4) ? (distance - 4) * 2.25 : 0.0;
         setState(() {
           regularFare = baseFare + additionalFare;
           discountedFare = regularFare * 0.8; // Apply 20% discount

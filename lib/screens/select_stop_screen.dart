@@ -30,24 +30,38 @@ class _SelectStopScreenState extends State<SelectStopScreen> {
 
     // Fetch license plate and routes from the database
     final plate = await dbHelper.getLicensePlate();
-    final busNum = await dbHelper.getBusNumber(); // Fetch the bus number from the database
+    final busNum = await dbHelper
+        .getBusNumber(); // Fetch the bus number from the database
     final routeList = await dbHelper.getRoutes();
 
     setState(() {
       licensePlate = plate ?? '';
       busNumber = busNum ?? ''; // Set the bus number
-      stops = routeList.where((stop) => stop != 'Ampayon Rotunda KM 16').toList(); // Filter out the stop
+      stops = routeList.where((stop) => stop != 'Ampayon Rotunda KM 16')
+          .toList(); // Filter out the stop
     });
+  }
+
+  Future<void> _saveSelectedStop() async {
+    final dbHelper = DatabaseHelper();
+
+    if (selectedStop != null) {
+      await dbHelper.storeSelectedStop(
+          selectedStop!); // Save selected stop to the database
+    }
   }
 
   void _printReceipt() async {
     if (selectedStop != null && busNumber.isNotEmpty) {
+      await _saveSelectedStop(); // Save selected stop before printing
+
       final openingOrNumber = await ORNumberService.getNextORNumber();
       final currentDateTime = DateTime.now();
 
       // Format the date and time with the separator
       String formattedDate = DateFormat('yyyy-MM-dd').format(currentDateTime);
-      String formattedTime = DateFormat('hh:mm a').format(currentDateTime); // AM/PM format
+      String formattedTime = DateFormat('hh:mm a').format(
+          currentDateTime); // AM/PM format
       String openingSaleDateTime = '$formattedDate | $formattedTime'; // Date and Time with separator
 
       PrinterService.printReceipt(
@@ -55,7 +69,8 @@ class _SelectStopScreenState extends State<SelectStopScreen> {
         line: selectedStop!,
         departureDate: formattedDate,
         departureTime: formattedTime,
-        busNumber: busNumber, // Use the entered bus number
+        busNumber: busNumber,
+        // Use the entered bus number
         licensePlate: licensePlate,
         openingOr: openingOrNumber,
         openingSaleDateTime: openingSaleDateTime,
@@ -67,6 +82,7 @@ class _SelectStopScreenState extends State<SelectStopScreen> {
   Widget build(BuildContext context) {
     final currentDate = DateTime.now().toLocal().toString().split(' ')[0];
     final currentTime = TimeOfDay.now().format(context);
+    final dateTimeString = '$currentDate | $currentTime';
 
     return Scaffold(
       appBar: AppBar(
@@ -78,18 +94,16 @@ class _SelectStopScreenState extends State<SelectStopScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Center(
-              child: Column(
-                children: [
-                  Text(
-                    'Current Date: $currentDate',
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    'Current Time: $currentTime',
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                ],
+            TextField(
+              controller: TextEditingController(text: dateTimeString),
+              readOnly: true,
+              decoration: InputDecoration(
+                labelText: 'Date & Time',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                    vertical: 16, horizontal: 12),
               ),
             ),
             const SizedBox(height: 20),
@@ -150,10 +164,11 @@ class _SelectStopScreenState extends State<SelectStopScreen> {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => BusTicketScreen(
-                        startingStop: selectedStop!,
-                        reverseOrder: reverseOrder,
-                      ),
+                      builder: (context) =>
+                          BusTicketScreen(
+                            startingStop: selectedStop!,
+                            reverseOrder: reverseOrder,
+                          ),
                     ),
                   );
                 }
@@ -163,7 +178,8 @@ class _SelectStopScreenState extends State<SelectStopScreen> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 15, horizontal: 30),
                 ),
                 child: const Text(
                   'CONTINUE',

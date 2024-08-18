@@ -41,11 +41,9 @@ class _ReportingTicketScreenState extends State<ReportingTicketScreen> {
       totalTickets = tickets.length;
 
       // Filter out valid tickets and sum their fares
-      final validTicketList = tickets.where((
-          ticket) => ticket['is_cancelled'] == 0).toList();
+      final validTicketList = tickets.where((ticket) => ticket['is_cancelled'] == 0).toList();
       validTickets = validTicketList.length;
-      totalFare = validTicketList.fold(
-          0.0, (sum, ticket) => sum + (ticket['fare'] as double));
+      totalFare = validTicketList.fold(0.0, (sum, ticket) => sum + (ticket['fare'] as double));
     }
 
     // Calculate discrepancies
@@ -74,7 +72,7 @@ On-board Passengers: ${widget.headcount}
 ------------------------
 Headcount: ${widget.headcount} Passenger(s)
 Discrepancy: ${reportData['discrepancies']} Passengers
-Total Passengers: ${reportData['totalTickets']}
+Total Passengers: ${reportData['validTickets']}  // Updated field
 Cancelled Tickets: ${reportData['cancelledTickets']}
 Total Valid Tickets: ${reportData['validTickets']}
 Total Fare Collected: \₱${reportData['totalFare'].toStringAsFixed(2)}
@@ -82,13 +80,10 @@ Total Fare Collected: \₱${reportData['totalFare'].toStringAsFixed(2)}
 
     // Print the content using SenraisePrinter instance
     try {
-      await _senraisePrinter.printText(
-          printContent); // Print the prepared content
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Print successful!')));
+      await _senraisePrinter.printText(printContent); // Print the prepared content
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Print successful!')));
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Print failed: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Print failed: $e')));
     }
   }
 
@@ -136,11 +131,10 @@ Total Fare Collected: \₱${reportData['totalFare'].toStringAsFixed(2)}
                 Text('Headcount: ${widget.headcount} Passenger(s)'),
                 Text('Discrepancy: ${reportData['discrepancies']} Passengers'),
                 const SizedBox(height: 10),
-                Text('Total Passengers: ${reportData['totalTickets']}'),
+                Text('Total Passengers: ${reportData['validTickets']}'), // Updated field
                 Text('Cancelled Tickets: ${reportData['cancelledTickets']}'),
                 Text('Total Valid Tickets: ${reportData['validTickets']}'),
-                Text('Total Fare Collected: \₱${reportData['totalFare']
-                    .toStringAsFixed(2)}'),
+                Text('Total Fare Collected: \₱${reportData['totalFare'].toStringAsFixed(2)}'),
                 const SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
