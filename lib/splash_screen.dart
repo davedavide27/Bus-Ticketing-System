@@ -12,20 +12,22 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   double _backgroundOpacity = 1.0;  // Opacity for background fade-out
+  Color _textColor = Colors.white;  // Initial text color
 
   @override
   void initState() {
     super.initState();
 
-    // Schedule background fade-out
-    Timer(Duration(seconds: 2), () {
+    // Schedule background fade-out and text color change
+    Timer(const Duration(seconds: 2), () {
       setState(() {
         _backgroundOpacity = 0.0;  // Fade the background out
+        _textColor = Colors.orange;  // Change text color to orange
       });
     });
 
     // Navigate to the next screen after fade-out is complete
-    Timer(Duration(seconds: 4), () {  // Adjust the timing if needed
+    Timer(const Duration(seconds: 4), () {  // Adjust the timing if needed
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (context) => MenuScreen(
@@ -50,7 +52,7 @@ class _SplashScreenState extends State<SplashScreen> {
         children: [
           AnimatedOpacity(
             opacity: _backgroundOpacity,
-            duration: Duration(milliseconds: 1900), // Fade duration for background
+            duration: const Duration(milliseconds: 1900), // Fade duration for background
             child: Container(
               color: Colors.blueAccent,
             ),
@@ -65,15 +67,18 @@ class _SplashScreenState extends State<SplashScreen> {
                   width: 300,
                 ),
                 const SizedBox(height: 20),
-                const Text(
-                  'BALTRANSCO\n'
-                      'A Bus Ticketing System',
-                  textAlign: TextAlign.center,
+                AnimatedDefaultTextStyle(
                   style: TextStyle(
                     fontFamily: 'Poppins',
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: _textColor,
+                  ),
+                  duration: const Duration(milliseconds: 1900),  // Match text fade duration with background
+                  child: const Text(
+                    'BALTRANSCO\n'
+                        'A Bus Ticketing System',
+                    textAlign: TextAlign.center,
                   ),
                 ),
               ],
