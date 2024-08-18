@@ -52,10 +52,6 @@ class _SettingsPageState extends State<SettingsPage> {
   Future<void> _saveSettings() async {
     final dbHelper = DatabaseHelper();
 
-    // Debug statements to check values
-    print('Saving license plate: ${licensePlateController.text}');
-    print('Saving bus number: ${busNumberController.text}'); // Debug for Bus Number
-
     // Save the license plate and bus number
     await dbHelper.insertLicensePlate(licensePlateController.text);
     await dbHelper.insertBusNumber(busNumberController.text); // Save the Bus Number
@@ -70,10 +66,6 @@ class _SettingsPageState extends State<SettingsPage> {
     widget.onLicensePlateChanged(licensePlateController.text);
     widget.onBusNumberChanged(busNumberController.text); // Update Bus Number
     widget.onRoutesChanged(routes);
-
-    // Debug statement to confirm settings are saved
-    print('Settings saved with license plate: ${licensePlateController.text}');
-    print('Settings saved with bus number: ${busNumberController.text}'); // Debug for Bus Number
 
     Navigator.pop(context, {
       'licensePlate': licensePlateController.text,

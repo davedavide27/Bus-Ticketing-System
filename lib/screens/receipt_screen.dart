@@ -16,13 +16,12 @@ class ORNumberService {
   }
 }
 
-
 class ReceiptScreen extends StatelessWidget {
   final String startingStop;
   final String destinationStop;
   final double fare;
   final bool isDiscounted;
-  final String busOrNumber; // Add this parameter
+  final String busOrNumber;
 
   const ReceiptScreen({
     Key? key,
@@ -30,7 +29,7 @@ class ReceiptScreen extends StatelessWidget {
     required this.destinationStop,
     required this.fare,
     this.isDiscounted = false,
-    required this.busOrNumber, // Include this parameter in the constructor
+    required this.busOrNumber,
   }) : super(key: key);
 
   Future<void> printReceipt(BuildContext context) async {
@@ -43,7 +42,6 @@ class ReceiptScreen extends StatelessWidget {
 
     // Construct the receipt content with date, time, and OR number
     String receiptContent = '''
-    
 ------------------------------
 BUS FARE RECEIPT
 ------------------------------
@@ -56,8 +54,6 @@ Bus Ticket OR: $busOrNumber
 Date and Time Issued:
 $formattedDate | $formattedTime
 ------------------------------
-
-
     ''';
 
     try {

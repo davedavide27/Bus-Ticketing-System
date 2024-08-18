@@ -175,9 +175,9 @@ class _MenuScreenState extends State<MenuScreen> {
                   ),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16.0),
-                child: const Text(
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 16.0),
+                child: Text(
                   'Created By: Dave Davide & Vince Carl Aratan',
                   style: TextStyle(
                     fontSize: 16,
