@@ -7,7 +7,7 @@
 
     <!-- Application configuration -->
     <application
-        android:label="Bus Ticket"
+        android:label="TRANS-CO"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
 

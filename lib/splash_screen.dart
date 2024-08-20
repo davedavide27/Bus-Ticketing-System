@@ -76,7 +76,7 @@ class _SplashScreenState extends State<SplashScreen> {
                   ),
                   duration: const Duration(milliseconds: 1900),  // Match text fade duration with background
                   child: const Text(
-                    'BALTRANSCO\n'
+                    'TRANS-CO\n'
                         'A Bus Ticketing System',
                     textAlign: TextAlign.center,
                   ),

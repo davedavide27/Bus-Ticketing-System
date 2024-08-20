@@ -101,7 +101,7 @@ class _MenuScreenState extends State<MenuScreen> {
       onWillPop: _onWillPop,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('BUS MENU'),
+          title: const Text('TRANS-CO MENU'),
           centerTitle: true,
           actions: [
             IconButton(

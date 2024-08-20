@@ -52,11 +52,40 @@ android {
 
     buildTypes {
         release {
-            // Use the signing configuration for release builds
             signingConfig signingConfigs.release
-            // Enable code shrinking, obfuscation, and optimization for release builds
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            if (variant.buildType.name == "release") {
+                outputFileName = "TRANS_CO-${variant.versionName}.apk"
+            }
+        }
+    }
+}
+
+tasks.whenTaskAdded { task ->
+    if (task.name == 'packageRelease') {
+        task.finalizedBy(renameApk)
+    }
+}
+
+task renameApk {
+    doLast {
+        def releaseDir = file("$buildDir/outputs/flutter-apk")
+        def oldFile = releaseDir.listFiles()?.find { it.name.endsWith(".apk") }
+        if (oldFile) {
+            def newFile = new File(releaseDir, "TRANS-CO-${flutterVersionName}.apk")
+            if (oldFile.renameTo(newFile)) {
+                println "APK renamed to ${newFile.name}"
+            } else {
+                println "Failed to rename APK file!"
+            }
+        } else {
+            println "No APK file found to rename!"
         }
     }
 }

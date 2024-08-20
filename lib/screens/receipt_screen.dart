@@ -54,6 +54,8 @@ Bus Ticket OR: $busOrNumber
 Date and Time Issued:
 $formattedDate | $formattedTime
 ------------------------------
+
+
     ''';
 
     try {

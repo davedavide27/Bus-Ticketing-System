@@ -76,6 +76,10 @@ Total Passengers: ${reportData['validTickets']}  // Updated field
 Cancelled Tickets: ${reportData['cancelledTickets']}
 Total Valid Tickets: ${reportData['validTickets']}
 Total Fare Collected: \₱${reportData['totalFare'].toStringAsFixed(2)}
+
+------------------------
+
+
     ''';
 
     // Print the content using SenraisePrinter instance

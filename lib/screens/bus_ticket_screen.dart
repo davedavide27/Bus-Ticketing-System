@@ -228,7 +228,7 @@ class _BusTicketScreenState extends State<BusTicketScreen> with SingleTickerProv
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Bus Ticket Menu'),
+        title: const Text('Ticket Menu'),
         centerTitle: true,
         actions: [
           IconButton(
